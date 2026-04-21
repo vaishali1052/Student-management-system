@@ -1,0 +1,96 @@
+{% extends 'student_template/base_template.html' %}
+{% block page_title %}Feedback{% endblock page_title %}
+{% block main_content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+
+      <!-- SEND FEEDBACK FORM -->
+      <div class="col-md-5">
+        <div class="card" style="border-radius:14px;border:none;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+          <div class="card-header" style="background:linear-gradient(135deg,#2e7d32,#1b5e20);border-radius:14px 14px 0 0;color:#fff;">
+            <h3 class="card-title mb-0"><i class="fas fa-paper-plane mr-2"></i>Send Feedback</h3>
+          </div>
+          <div class="card-body">
+            <form action="{% url 'student_feedback_save' %}" method="post">
+              {% csrf_token %}
+              <div class="form-group">
+                <label><i class="fas fa-comment mr-1"></i>Your Message</label>
+                <textarea class="form-control" rows="5" name="feedback_msg" placeholder="Write your feedback here..."></textarea>
+              </div>
+              {% if messages %}
+                {% for message in messages %}
+                  {% if message.tags == 'error' %}
+                    <div class="alert alert-danger"><i class="fas fa-exclamation-circle mr-1"></i>{{ message }}</div>
+                  {% elif message.tags == 'success' %}
+                    <div class="alert alert-success"><i class="fas fa-check-circle mr-1"></i>{{ message }}</div>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+              <button type="submit" class="btn btn-success btn-block">
+                <i class="fas fa-paper-plane mr-1"></i>Send Feedback
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- FEEDBACK HISTORY -->
+      <div class="col-md-7">
+        <div class="card" style="border-radius:14px;border:none;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+          <div class="card-header" style="background:linear-gradient(135deg,#1565c0,#0d47a1);border-radius:14px 14px 0 0;color:#fff;">
+            <h3 class="card-title mb-0">
+              <i class="fas fa-history mr-2"></i>Feedback History
+              <span class="badge badge-light ml-2">{{ feedback_data|length }}</span>
+            </h3>
+          </div>
+          <div class="card-body p-3">
+            {% if feedback_data %}
+              {% for row in feedback_data %}
+              <div style="background:#f8f9fa;border-radius:10px;padding:14px;margin-bottom:12px;
+                border-left:4px solid {% if '[HOD Message]' in row.feedback %}#e65100{% else %}#2e7d32{% endif %};">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                  <span>
+                    {% if '[HOD Message]' in row.feedback %}
+                      <span style="background:#fff3e0;color:#e65100;font-size:0.72rem;padding:3px 8px;border-radius:6px;font-weight:600;">
+                        <i class="fas fa-bullhorn mr-1"></i>From HOD
+                      </span>
+                    {% else %}
+                      <span style="background:#e8f5e9;color:#2e7d32;font-size:0.72rem;padding:3px 8px;border-radius:6px;font-weight:600;">
+                        <i class="fas fa-user mr-1"></i>My Feedback
+                      </span>
+                    {% endif %}
+                  </span>
+                  <small style="color:#78909c;font-size:0.75rem;"><i class="fas fa-clock mr-1"></i>{{ row.created_at|date:"d M Y, h:i A" }}</small>
+                </div>
+                <p style="margin:0 0 8px;font-size:0.88rem;color:#1a1a2e;font-weight:500;">
+                  {{ row.feedback|cut:"[HOD Message] " }}
+                </p>
+                {% if row.feedback_reply %}
+                <div style="background:#e3f2fd;border-radius:8px;padding:8px 12px;margin-top:6px;">
+                  <small style="color:#1565c0;font-weight:600;"><i class="fas fa-reply mr-1"></i>HOD Reply:</small>
+                  <p style="margin:4px 0 0;font-size:0.85rem;color:#0d47a1;">{{ row.feedback_reply }}</p>
+                </div>
+                {% else %}
+                  {% if '[HOD Message]' not in row.feedback %}
+                  <span class="badge" style="background:#fff3e0;color:#e65100;font-size:0.72rem;padding:4px 10px;border-radius:6px;">
+                    <i class="fas fa-clock mr-1"></i>Awaiting Reply
+                  </span>
+                  {% endif %}
+                {% endif %}
+              </div>
+              {% endfor %}
+            {% else %}
+              <div style="text-align:center;padding:40px 20px;">
+                <i class="fas fa-comments" style="font-size:2.5rem;color:#cfd8dc;"></i>
+                <p style="color:#90a4ae;margin-top:12px;font-size:0.88rem;">No feedback sent yet.</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock main_content %}

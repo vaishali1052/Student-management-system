@@ -1,0 +1,194 @@
+{% extends 'staff_template/base_template.html' %}
+{% block page_title %}Student Feedback{% endblock page_title %}
+{% block main_content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="card" style="border-radius:14px;border:none;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+
+          <div class="card-header d-flex justify-content-between align-items-center"
+               style="background:linear-gradient(135deg,#1565c0,#0d47a1);border-radius:14px 14px 0 0;color:#fff;">
+            <h3 class="card-title mb-0">
+              <i class="fas fa-comment-dots mr-2"></i>Feedback from Students
+              <span class="badge badge-light ml-2">{{ feedbacks|length }}</span>
+            </h3>
+            <div class="input-group input-group-sm" style="width:200px;">
+              <input type="text" id="search_input" class="form-control" placeholder="Search...">
+              <div class="input-group-append">
+                <span class="input-group-text" style="background:rgba(255,255,255,0.2);border:none;color:#fff;">
+                  <i class="fas fa-search"></i>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card-body p-0">
+            {% if feedbacks %}
+            <div class="table-responsive">
+              <table class="table table-hover mb-0" id="feedback_table">
+                <thead>
+                  <tr style="background:#f8f9fa;">
+                    <th>#</th>
+                    <th>Student</th>
+                    <th>Feedback Message</th>
+                    <th style="width:130px;">Sent On</th>
+                    <th style="width:110px;">Status</th>
+                    <th style="width:110px;">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for fb in feedbacks %}
+                <tr>
+                  <td><span class="badge badge-secondary">{{ fb.id }}</span></td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#1565c0,#0d47a1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="fas fa-user-graduate" style="color:#fff;font-size:0.78rem;"></i>
+                      </div>
+                      <div>
+                        <div style="font-weight:600;font-size:0.83rem;color:#1a1a2e;">
+                          {% if fb.student_id.admin.first_name %}{{ fb.student_id.admin.first_name }} {{ fb.student_id.admin.last_name }}{% else %}{{ fb.student_id.admin.username }}{% endif %}
+                        </div>
+                        <small style="color:#78909c;font-size:0.73rem;">{{ fb.student_id.admin.email }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td style="max-width:280px;">
+                    <p style="margin:0;font-size:0.85rem;color:#37474f;">{{ fb.feedback }}</p>
+                    {% if fb.feedback_reply %}
+                    <div style="background:#e8f5e9;border-radius:6px;padding:6px 10px;margin-top:6px;">
+                      <small style="color:#2e7d32;font-weight:600;"><i class="fas fa-reply mr-1"></i>Your Reply: </small>
+                      <span style="font-size:0.82rem;color:#1b5e20;">{{ fb.feedback_reply }}</span>
+                    </div>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <small style="color:#78909c;font-size:0.78rem;">
+                      <i class="fas fa-clock mr-1"></i>{{ fb.created_at|date:"d M Y" }}<br>
+                      <span style="color:#b0bec5;">{{ fb.created_at|date:"h:i A" }}</span>
+                    </small>
+                  </td>
+                  <td>
+                    {% if not fb.feedback_reply %}
+                      <span style="background:#fff3e0;color:#e65100;font-size:0.75rem;padding:4px 10px;border-radius:8px;font-weight:600;">
+                        <i class="fas fa-clock mr-1"></i>Pending
+                      </span>
+                    {% else %}
+                      <span style="background:#e8f5e9;color:#2e7d32;font-size:0.75rem;padding:4px 10px;border-radius:8px;font-weight:600;">
+                        <i class="fas fa-check-circle mr-1"></i>Replied
+                      </span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if not fb.feedback_reply %}
+                      <button class="btn btn-primary btn-sm reply_btn"
+                        data-id="{{ fb.id }}"
+                        data-name="{% if fb.student_id.admin.first_name %}{{ fb.student_id.admin.first_name }}{% else %}{{ fb.student_id.admin.username }}{% endif %}"
+                        data-toggle="modal" data-target="#reply_modal">
+                        <i class="fas fa-reply mr-1"></i>Reply
+                      </button>
+                    {% else %}
+                      <span style="color:#90a4ae;font-size:0.8rem;">Done</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <div style="text-align:center;padding:60px 20px;">
+              <i class="fas fa-comment-slash" style="font-size:3rem;color:#cfd8dc;"></i>
+              <h5 style="color:#90a4ae;margin-top:16px;">No Student Feedback Yet</h5>
+              <p style="color:#b0bec5;font-size:0.85rem;">No student has sent you feedback yet.</p>
+            </div>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Reply Modal -->
+<div class="modal fade" id="reply_modal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:14px;border:none;">
+      <div class="modal-header" style="background:linear-gradient(135deg,#1565c0,#0d47a1);border-radius:14px 14px 0 0;color:#fff;">
+        <h5 class="modal-title"><i class="fas fa-reply mr-2"></i>Reply to <span id="reply_name" style="color:#90caf9;"></span></h5>
+        <button type="button" class="close" data-dismiss="modal"><span style="color:#fff;">&times;</span></button>
+      </div>
+      <div class="modal-body" style="padding:24px;">
+        <input type="hidden" id="reply_id">
+        <div class="form-group">
+          <label style="font-weight:600;color:#37474f;">Your Reply</label>
+          <textarea class="form-control" rows="4" id="reply_message" placeholder="Type your reply here..."></textarea>
+        </div>
+        <div id="reply_result"></div>
+      </div>
+      <div class="modal-footer" style="background:#f8f9fa;border-radius:0 0 14px 14px;">
+        <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"><i class="fas fa-times mr-1"></i>Close</button>
+        <button type="button" class="btn btn-primary btn-sm" id="send_reply_btn"><i class="fas fa-paper-plane mr-1"></i>Send Reply</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock main_content %}
+
+{% block custom_js %}
+<script>
+function getCookie(name) {
+    let c = null;
+    if (document.cookie) document.cookie.split(';').forEach(x => {
+        x = x.trim();
+        if (x.startsWith(name + '=')) c = decodeURIComponent(x.substring(name.length + 1));
+    });
+    return c;
+}
+const csrftoken = getCookie('csrftoken');
+
+// Live search
+$("#search_input").on("keyup", function(){
+    var val = $(this).val().toLowerCase();
+    $("#feedback_table tbody tr").filter(function(){ $(this).toggle($(this).text().toLowerCase().includes(val)); });
+});
+
+// Open reply modal
+$(document).on("click", ".reply_btn", function(){
+    $("#reply_id").val($(this).data("id"));
+    $("#reply_name").text($(this).data("name"));
+    $("#reply_message").val("");
+    $("#reply_result").html("");
+    $("#send_reply_btn").prop("disabled", false).html('<i class="fas fa-paper-plane mr-1"></i>Send Reply');
+});
+
+// Send reply
+$("#send_reply_btn").click(function(){
+    var id = $("#reply_id").val();
+    var message = $("#reply_message").val().trim();
+    if(!message){ alert("Please enter a reply."); return; }
+    $(this).prop("disabled", true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Sending...');
+    $.ajax({
+        url: "{% url 'staff_reply_student_feedback' %}",
+        type: "POST",
+        headers: {'X-CSRFToken': csrftoken},
+        data: { id: id, message: message },
+        success: function(response){
+            if(response == "True"){
+                $("#reply_result").html('<div class="alert alert-success"><i class="fas fa-check-circle mr-1"></i>Reply sent!</div>');
+                setTimeout(function(){ location.reload(); }, 1000);
+            } else {
+                $("#reply_result").html('<div class="alert alert-danger">Failed to send reply.</div>');
+                $("#send_reply_btn").prop("disabled", false).html('<i class="fas fa-paper-plane mr-1"></i>Send Reply');
+            }
+        },
+        error: function(){
+            $("#reply_result").html('<div class="alert alert-danger">Server error.</div>');
+            $("#send_reply_btn").prop("disabled", false).html('<i class="fas fa-paper-plane mr-1"></i>Send Reply');
+        }
+    });
+});
+</script>
+{% endblock custom_js %}

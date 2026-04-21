@@ -1,0 +1,261 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Student Management System | Login</title>
+  <link rel="stylesheet" href="{% static "plugins/fontawesome-free/css/all.min.css" %}">
+  <link rel="stylesheet" href="{% static "dist/css/adminlte.min.css" %}">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Poppins', sans-serif; }
+    body {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .main-wrapper { width: 100%; max-width: 960px; }
+
+    /* Header */
+    .login-header { text-align: center; margin-bottom: 36px; }
+    .login-header i { font-size: 3rem; color: #4fc3f7; margin-bottom: 12px; display: block; }
+    .login-header h2 { color: #fff; font-weight: 700; font-size: 1.5rem; margin: 0; }
+    .login-header p  { color: #90a4ae; font-size: 0.85rem; margin-top: 6px; }
+
+    /* Role Cards */
+    .role-cards { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+
+    .role-card {
+      background: #fff;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+      width: 280px;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .role-card:hover { transform: translateY(-6px); box-shadow: 0 28px 60px rgba(0,0,0,0.4); }
+
+    .role-card-header {
+      padding: 24px 20px 18px;
+      text-align: center;
+      color: #fff;
+    }
+    .role-card-header i { font-size: 2.2rem; margin-bottom: 8px; display: block; }
+    .role-card-header h4 { font-weight: 700; margin: 0; font-size: 1.1rem; }
+    .role-card-header p  { margin: 4px 0 0; font-size: 0.78rem; opacity: 0.85; }
+
+    .admin-header  { background: linear-gradient(135deg, #1565c0, #0d47a1); }
+    .staff-header  { background: linear-gradient(135deg, #2e7d32, #1b5e20); }
+    .student-header{ background: linear-gradient(135deg, #f57f17, #e65100); }
+
+    .role-card-body { padding: 20px; }
+
+    .form-control {
+      border-radius: 10px !important;
+      border: 1.5px solid #e0e0e0 !important;
+      padding: 10px 14px !important;
+      font-size: 0.85rem;
+      height: auto !important;
+    }
+    .form-control:focus { outline: none; }
+
+    .admin-input:focus   { border-color: #1565c0 !important; box-shadow: 0 0 0 3px rgba(21,101,192,0.15) !important; }
+    .staff-input:focus   { border-color: #2e7d32 !important; box-shadow: 0 0 0 3px rgba(46,125,50,0.15)  !important; }
+    .student-input:focus { border-color: #f57f17 !important; box-shadow: 0 0 0 3px rgba(245,127,23,0.15) !important; }
+
+    .input-group-text {
+      border-radius: 0 10px 10px 0 !important;
+      border: 1.5px solid #e0e0e0 !important;
+      border-left: none !important;
+      background: #f5f5f5;
+    }
+    .admin-icon   { color: #1565c0; }
+    .staff-icon   { color: #2e7d32; }
+    .student-icon { color: #f57f17; }
+
+    .btn-admin   { background: linear-gradient(135deg, #1565c0, #0d47a1) !important; }
+    .btn-staff   { background: linear-gradient(135deg, #2e7d32, #1b5e20) !important; }
+    .btn-student { background: linear-gradient(135deg, #f57f17, #e65100) !important; }
+
+    .btn-login {
+      border: none !important;
+      border-radius: 10px !important;
+      padding: 11px !important;
+      font-weight: 600;
+      font-size: 0.88rem;
+      color: #fff !important;
+      transition: all 0.3s;
+      width: 100%;
+      margin-top: 12px;
+    }
+    .btn-login:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.25); }
+
+    label { font-size: 0.8rem; font-weight: 500; color: #546e7a; margin-bottom: 4px; }
+    .form-group { margin-bottom: 14px; }
+
+    .alert { border-radius: 10px !important; border: none !important; font-size: 0.8rem; padding: 8px 12px; margin-top: 8px; }
+
+    .hint-text { font-size: 0.72rem; color: #90a4ae; text-align: center; margin-top: 10px; }
+    .hint-text span { color: #546e7a; font-weight: 600; }
+  </style>
+</head>
+<body>
+<div class="main-wrapper">
+
+  <!-- Header -->
+  <div class="login-header">
+    <i class="fas fa-graduation-cap"></i>
+    <h2>Student Management System</h2>
+    <p>Select your role and sign in to continue</p>
+  </div>
+
+  <!-- 3 Role Cards -->
+  <div class="role-cards">
+
+    <!-- ADMIN -->
+    <div class="role-card">
+      <div class="role-card-header admin-header">
+        <i class="fas fa-user-shield"></i>
+        <h4>Admin / HOD</h4>
+        <p>Manage the entire system</p>
+      </div>
+      <div class="role-card-body">
+        <form action="{% url 'do_login' %}" method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label>Email</label>
+            <div class="input-group">
+              <input type="email" class="form-control admin-input" name="email"
+                placeholder="admin@gmail.com" value="admin@gmail.com">
+              <div class="input-group-append">
+                <span class="input-group-text"><i class="fas fa-envelope admin-icon"></i></span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <div class="input-group">
+              <input type="password" class="form-control admin-input" name="password"
+                placeholder="Password" value="admin123">
+              <div class="input-group-append">
+                <span class="input-group-text"><i class="fas fa-lock admin-icon"></i></span>
+              </div>
+            </div>
+          </div>
+          {% if messages %}
+            {% for message in messages %}
+              {% if message.tags == 'error' %}
+                <div class="alert alert-danger"><i class="fas fa-exclamation-circle mr-1"></i>{{ message }}</div>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          <button type="submit" class="btn-login btn-admin">
+            <i class="fas fa-sign-in-alt mr-2"></i>Login as Admin
+          </button>
+        </form>
+        <p class="hint-text">Email: <span>admin@gmail.com</span> | Pass: <span>admin123</span></p>
+      </div>
+    </div>
+
+    <!-- STAFF -->
+    <div class="role-card">
+      <div class="role-card-header staff-header">
+        <i class="fas fa-chalkboard-teacher"></i>
+        <h4>Staff / Teacher</h4>
+        <p>Manage attendance & results</p>
+      </div>
+      <div class="role-card-body">
+        <form action="{% url 'do_login' %}" method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label>Email</label>
+            <div class="input-group">
+              <input type="email" class="form-control staff-input" name="email"
+                placeholder="staff@gmail.com" value="mitansh@gmail.com">
+              <div class="input-group-append">
+                <span class="input-group-text"><i class="fas fa-envelope staff-icon"></i></span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <div class="input-group">
+              <input type="password" class="form-control staff-input" name="password"
+                placeholder="Password" value="admin123">
+              <div class="input-group-append">
+                <span class="input-group-text"><i class="fas fa-lock staff-icon"></i></span>
+              </div>
+            </div>
+          </div>
+          {% if messages %}
+            {% for message in messages %}
+              {% if message.tags == 'error' %}
+                <div class="alert alert-danger"><i class="fas fa-exclamation-circle mr-1"></i>{{ message }}</div>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          <button type="submit" class="btn-login btn-staff">
+            <i class="fas fa-sign-in-alt mr-2"></i>Login as Staff
+          </button>
+        </form>
+        <p class="hint-text">Email: <span>mitansh@gmail.com</span> | Pass: <span>admin123</span></p>
+      </div>
+    </div>
+
+    <!-- STUDENT -->
+    <div class="role-card">
+      <div class="role-card-header student-header">
+        <i class="fas fa-user-graduate"></i>
+        <h4>Student</h4>
+        <p>View attendance & results</p>
+      </div>
+      <div class="role-card-body">
+        <form action="{% url 'do_login' %}" method="post">
+          {% csrf_token %}
+          <div class="form-group">
+            <label>Email</label>
+            <div class="input-group">
+              <input type="email" class="form-control student-input" name="email"
+                placeholder="student@gmail.com" value="abhishek@gmail.com">
+              <div class="input-group-append">
+                <span class="input-group-text"><i class="fas fa-envelope student-icon"></i></span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <div class="input-group">
+              <input type="password" class="form-control student-input" name="password"
+                placeholder="Password" value="admin123">
+              <div class="input-group-append">
+                <span class="input-group-text"><i class="fas fa-lock student-icon"></i></span>
+              </div>
+            </div>
+          </div>
+          {% if messages %}
+            {% for message in messages %}
+              {% if message.tags == 'error' %}
+                <div class="alert alert-danger"><i class="fas fa-exclamation-circle mr-1"></i>{{ message }}</div>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+          <button type="submit" class="btn-login btn-student">
+            <i class="fas fa-sign-in-alt mr-2"></i>Login as Student
+          </button>
+        </form>
+        <p class="hint-text">Email: <span>abhishek@gmail.com</span> | Pass: <span>admin123</span></p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="{% static "plugins/jquery/jquery.min.js" %}"></script>
+<script src="{% static "plugins/bootstrap/js/bootstrap.bundle.min.js" %}"></script>
+</body>
+</html>

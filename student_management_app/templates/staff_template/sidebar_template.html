@@ -1,0 +1,68 @@
+{% load static %}
+<aside class="main-sidebar elevation-4">
+  <a href="{% url 'staff_home' %}" class="brand-link">
+    <i class="fas fa-chalkboard-teacher ml-2 mr-2" style="color:#4fc3f7;font-size:1.4rem;"></i>
+    <span class="brand-text">Staff Panel</span>
+  </a>
+  <div class="sidebar">
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex align-items-center">
+      <div class="image">
+        <div style="width:35px;height:35px;border-radius:50%;background:linear-gradient(135deg,#4fc3f7,#1565c0);display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-chalkboard-teacher" style="color:#fff;font-size:0.9rem;"></i>
+        </div>
+      </div>
+      <div class="info ml-2">
+        <a href="{% url 'staff_profile' %}" class="d-block" style="color:#b0bec5;font-size:0.82rem;font-weight:500;">
+          {{ user.username }}
+        </a>
+        <small style="color:#4fc3f7;font-size:0.72rem;">Staff / Teacher</small>
+      </div>
+    </div>
+    <nav class="mt-1">
+      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+        {% url 'staff_home' as staff_home %}
+        <li class="nav-item">
+          <a href="{{ staff_home }}" class="nav-link {% if request.path == staff_home %}active{% endif %}">
+            <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+          </a>
+        </li>
+
+        <li class="nav-header" style="color:#546e7a;font-size:0.7rem;letter-spacing:1px;padding:10px 14px 4px;">ATTENDANCE</li>
+
+        {% url 'staff_take_attendance' as staff_take_attendance %}
+        <li class="nav-item">
+          <a href="{{ staff_take_attendance }}" class="nav-link {% if request.path == staff_take_attendance %}active{% endif %}">
+            <i class="nav-icon fas fa-clipboard-list"></i><p>Take Attendance</p>
+          </a>
+        </li>
+
+        {% url 'staff_update_attendance' as staff_update_attendance %}
+        <li class="nav-item">
+          <a href="{{ staff_update_attendance }}" class="nav-link {% if request.path == staff_update_attendance %}active{% endif %}">
+            <i class="nav-icon fas fa-edit"></i><p>Update Attendance</p>
+          </a>
+        </li>
+
+        <li class="nav-header" style="color:#546e7a;font-size:0.7rem;letter-spacing:1px;padding:10px 14px 4px;">LEAVE</li>
+
+        {% url 'staff_apply_leave' as staff_apply_leave %}
+        <li class="nav-item">
+          <a href="{{ staff_apply_leave }}" class="nav-link {% if request.path == staff_apply_leave %}active{% endif %}">
+            <i class="nav-icon fas fa-calendar-plus"></i><p>Apply Leave</p>
+          </a>
+        </li>
+
+        <li class="nav-header" style="color:#546e7a;font-size:0.7rem;letter-spacing:1px;padding:10px 14px 4px;">OTHER</li>
+
+        {% url 'staff_all_notification' as staff_all_notification %}
+        <li class="nav-item">
+          <a href="{{ staff_all_notification }}" class="nav-link {% if request.path == staff_all_notification %}active{% endif %}">
+            <i class="nav-icon fas fa-bell"></i><p>Notifications</p>
+          </a>
+        </li>
+
+      </ul>
+    </nav>
+  </div>
+</aside>

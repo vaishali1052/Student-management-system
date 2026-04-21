@@ -1,0 +1,214 @@
+{% extends 'hod_template/base_template.html' %}
+
+{% block page_title %}View Attendance{% endblock page_title %}
+
+{% block main_content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <div class="card card-primary">
+          <div class="card-header">
+            <h3 class="card-title">View Attendance</h3>
+          </div>
+
+          <div class="card-body">
+
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label><b>Subject</b></label>
+                  <select class="form-control" id="subject">
+                    {% for subject in subjects %}
+                      <option value="{{ subject.id }}">{{ subject.subject_name }} ({{ subject.course_id.course_name }})</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label><b>Session Year</b></label>
+                  <select class="form-control" id="session_year_id">
+                    {% for session_year in session_year_id %}
+                      <option value="{{ session_year.id }}">
+                        {{ session_year.session_start_year }} TO {{ session_year.session_end_year }}
+                      </option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <button type="button" class="btn btn-primary" id="fetch_attendance">
+                <i class="fas fa-search"></i> Fetch Attendance Dates
+              </button>
+            </div>
+
+            <div class="alert alert-danger" id="error_attendance" style="display:none"></div>
+            <div class="alert alert-info" id="info_msg" style="display:none"></div>
+
+            <div class="form-group" id="attendance_block" style="display:none">
+              <label><b>Select Attendance Date</b></label>
+              <select class="form-control" id="attendance_date">
+                <option value="">-- Select Date --</option>
+              </select>
+            </div>
+
+            <div class="form-group" id="fetch_student_block" style="display:none">
+              <button type="button" class="btn btn-success" id="fetch_student">
+                <i class="fas fa-users"></i> Fetch Student Data
+              </button>
+            </div>
+
+          </div><!-- /.card-body -->
+
+          <!-- Student Attendance Table -->
+          <div id="student_data"></div>
+
+        </div><!-- /.card -->
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock main_content %}
+
+{% block custom_js %}
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        let cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+const csrftoken = getCookie('csrftoken');
+
+$(document).ready(function(){
+
+    // ── FETCH ATTENDANCE DATES ──────────────────────────────────────
+    $("#fetch_attendance").click(function(){
+        var subject    = $("#subject").val();
+        var session_yr = $("#session_year_id").val();
+
+        $("#error_attendance").hide();
+        $("#info_msg").hide();
+        $("#student_data").html("");
+        $("#attendance_block").hide();
+        $("#fetch_student_block").hide();
+
+        $.ajax({
+            url: "{% url 'admin_get_attendance_dates' %}",
+            type: "POST",
+            headers: {'X-CSRFToken': csrftoken},
+            data: { subject: subject, session_year_id: session_yr },
+        })
+        .done(function(response){
+            if(response.length > 0){
+                var opts = "<option value=''>-- Select Date --</option>";
+                $.each(response, function(i, item){
+                    opts += "<option value='" + item.id + "'>" + item.attendance_date + "</option>";
+                });
+                $("#attendance_date").html(opts);
+                $("#attendance_block").show();
+                $("#fetch_student_block").show();
+                $("#info_msg").text(response.length + " attendance date(s) found.").show();
+            } else {
+                $("#error_attendance")
+                    .html("<strong>No Attendance Records Found</strong> for the selected Subject &amp; Session Year.<br>Please ask the staff to take attendance first.")
+                    .show();
+            }
+        })
+        .fail(function(xhr){
+            $("#error_attendance").text("Server error: " + xhr.status + " " + xhr.statusText).show();
+        });
+    });
+
+    // ── FETCH STUDENTS FOR SELECTED DATE ───────────────────────────
+    $("#fetch_student").click(function(){
+        var att_id = $("#attendance_date").val();
+        if(!att_id){
+            alert("Please select an attendance date first.");
+            return;
+        }
+
+        $("#student_data").html("<div class='p-3 text-center'><i class='fas fa-spinner fa-spin'></i> Loading...</div>");
+
+        $.ajax({
+            url: "{% url 'admin_get_attendance_student' %}",
+            type: "POST",
+            headers: {'X-CSRFToken': csrftoken},
+            data: { attendance_date: att_id },
+        })
+        .done(function(response){
+            if(response.length === 0){
+                $("#student_data").html("<div class='p-3'><div class='alert alert-warning'>No student records found for this date.</div></div>");
+                return;
+            }
+
+            var present = 0, absent = 0;
+            var rows = "";
+            $.each(response, function(i, s){
+                var badge = s.status
+                    ? "<span class='badge badge-success px-3 py-2'>Present</span>"
+                    : "<span class='badge badge-danger  px-3 py-2'>Absent</span>";
+                if(s.status) present++; else absent++;
+                rows += "<tr><td>" + (i+1) + "</td><td>" + s.name + "</td><td>" + badge + "</td></tr>";
+            });
+
+            var html =
+                "<div class='card-body'>" +
+                  "<div class='row mb-3'>" +
+                    "<div class='col-md-4'>" +
+                      "<div class='info-box bg-success'>" +
+                        "<span class='info-box-icon'><i class='fas fa-user-check'></i></span>" +
+                        "<div class='info-box-content'>" +
+                          "<span class='info-box-text'>Present</span>" +
+                          "<span class='info-box-number'>" + present + "</span>" +
+                        "</div>" +
+                      "</div>" +
+                    "</div>" +
+                    "<div class='col-md-4'>" +
+                      "<div class='info-box bg-danger'>" +
+                        "<span class='info-box-icon'><i class='fas fa-user-times'></i></span>" +
+                        "<div class='info-box-content'>" +
+                          "<span class='info-box-text'>Absent</span>" +
+                          "<span class='info-box-number'>" + absent + "</span>" +
+                        "</div>" +
+                      "</div>" +
+                    "</div>" +
+                    "<div class='col-md-4'>" +
+                      "<div class='info-box bg-info'>" +
+                        "<span class='info-box-icon'><i class='fas fa-users'></i></span>" +
+                        "<div class='info-box-content'>" +
+                          "<span class='info-box-text'>Total</span>" +
+                          "<span class='info-box-number'>" + response.length + "</span>" +
+                        "</div>" +
+                      "</div>" +
+                    "</div>" +
+                  "</div>" +
+                  "<table class='table table-bordered table-striped table-hover'>" +
+                    "<thead class='thead-dark'>" +
+                      "<tr><th>#</th><th>Student Name</th><th>Status</th></tr>" +
+                    "</thead>" +
+                    "<tbody>" + rows + "</tbody>" +
+                  "</table>" +
+                "</div>";
+
+            $("#student_data").html(html);
+        })
+        .fail(function(xhr){
+            $("#student_data").html("<div class='p-3'><div class='alert alert-danger'>Server error: " + xhr.status + "</div></div>");
+        });
+    });
+
+});
+</script>
+{% endblock custom_js %}

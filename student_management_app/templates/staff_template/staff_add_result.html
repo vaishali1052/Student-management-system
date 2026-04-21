@@ -1,0 +1,109 @@
+{% block custom_js %}
+<script>
+
+// ✅ CSRF TOKEN FUNCTION
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        let cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            let cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+const csrftoken = getCookie('csrftoken');
+
+$(document).ready(function(){
+
+    $("#fetch_student").click(function(){
+
+        var subject = $("#subject").val();
+        var session_year = $("#session_year").val();
+
+        // ✅ VALIDATION
+        if(subject == "" || session_year == ""){
+            alert("Please select subject and session year");
+            return;
+        }
+
+        // ✅ LOADING UI
+        $("#student_data").html("<p style='color:blue;'>Loading students...</p>");
+
+        $.ajax({
+            url: "{% url 'get_students' %}",
+            type: "POST",
+            headers: {'X-CSRFToken': csrftoken},
+            data: {
+                subject: subject,
+                session_year: session_year
+            },
+
+            success: function(response){
+
+                let json_data;
+
+                // ✅ SAFE PARSE
+                try {
+                    json_data = typeof response === "string" ? JSON.parse(response) : response;
+                } catch (e) {
+                    alert("Invalid server response");
+                    return;
+                }
+
+                var div_data = "";
+
+                // ✅ EMPTY CHECK
+                if(json_data.length === 0){
+                    div_data = "<p style='color:red;'>No students found</p>";
+                } else {
+
+                    div_data += "<div class='form-group'>";
+                    div_data += "<label>Student List</label>";
+                    div_data += "<select class='form-control' name='student_list'>";
+
+                    for(var key in json_data){
+                        div_data += "<option value='"+json_data[key]['id']+"'>";
+                        div_data += "ID: "+json_data[key]['id']+" - "+json_data[key]['name'];
+                        div_data += "</option>";
+                    }
+
+                    div_data += "</select></div>";
+
+                    div_data += "<div class='form-group row'>";
+
+                    div_data += "<div class='col-lg-6'>";
+                    div_data += "<label>Assignment Marks</label>";
+                    div_data += "<input type='number' name='assignment_marks' class='form-control'>";
+                    div_data += "</div>";
+
+                    div_data += "<div class='col-lg-6'>";
+                    div_data += "<label>Exam Marks</label>";
+                    div_data += "<input type='number' name='exam_marks' class='form-control'>";
+                    div_data += "</div>";
+
+                    div_data += "</div>";
+
+                    div_data += "<div class='form-group'>";
+                    div_data += "<button class='btn btn-success btn-block' type='submit'>Save Result</button>";
+                    div_data += "</div>";
+                }
+
+                $("#student_data").html(div_data);
+            },
+
+            error: function(){
+                $("#student_data").html("<p style='color:red;'>Error loading students</p>");
+            }
+        });
+
+    });
+
+});
+</script>
+{% endblock custom_js %}

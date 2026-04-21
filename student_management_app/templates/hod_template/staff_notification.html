@@ -1,0 +1,142 @@
+{% extends 'hod_template/base_template.html' %}
+{% block page_title %}<i class="fas fa-bell mr-2" style="color:#1565c0;"></i>Send Staff Notification{% endblock %}
+
+{% block main_content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title mb-0"><i class="fas fa-chalkboard-teacher mr-2"></i>Select Staff</h3>
+            <div class="input-group input-group-sm" style="width:220px;">
+              <input type="text" id="table_search" class="form-control" placeholder="Search staff...">
+              <div class="input-group-append">
+                <span class="input-group-text"><i class="fas fa-search"></i></span>
+              </div>
+            </div>
+          </div>
+          <div class="card-body table-responsive p-0">
+            <table class="table table-hover" id="staff_table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Username</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Email</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+              {% for staff in staffs %}
+                <tr>
+                  <td>{{ staff.admin.id }}</td>
+                  <td>{{ staff.admin.username }}</td>
+                  <td>{{ staff.admin.first_name }}</td>
+                  <td>{{ staff.admin.last_name }}</td>
+                  <td>{{ staff.admin.email }}</td>
+                  <td>
+                    <button class="btn btn-primary btn-sm show_notification"
+                      data-id="{{ staff.admin.id }}"
+                      data-name="{{ staff.admin.username }}"
+                      data-toggle="modal" data-target="#notifyModal">
+                      <i class="fas fa-paper-plane mr-1"></i>Send Notification
+                    </button>
+                  </td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Notification Modal -->
+<div class="modal fade" id="notifyModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="fas fa-bell mr-2"></i>Send Notification to <span id="name_span" style="color:#4fc3f7;"></span></h5>
+        <button type="button" class="close" data-dismiss="modal"><span style="color:#fff;">&times;</span></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="staff_id">
+        <div class="form-group">
+          <label>Notification Message</label>
+          <textarea class="form-control" id="message_not" rows="4" placeholder="Type your message here..."></textarea>
+        </div>
+        <div id="notify_result"></div>
+      </div>
+      <div class="modal-footer" style="background:#f8f9fa;border-radius:0 0 14px 14px;">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal"><i class="fas fa-times mr-1"></i>Close</button>
+        <button type="button" class="btn btn-primary" id="send_btn"><i class="fas fa-paper-plane mr-1"></i>Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock main_content %}
+
+{% block custom_js %}
+<script>
+function getCookie(name) {
+  let c = null;
+  if (document.cookie) {
+    document.cookie.split(';').forEach(function(x){
+      x = x.trim();
+      if (x.startsWith(name + '=')) c = decodeURIComponent(x.substring(name.length + 1));
+    });
+  }
+  return c;
+}
+const csrftoken = getCookie('csrftoken');
+
+// Live search
+$("#table_search").on("keyup", function(){
+  var val = $(this).val().toLowerCase();
+  $("#staff_table tbody tr").filter(function(){ $(this).toggle($(this).text().toLowerCase().includes(val)); });
+});
+
+// Open modal
+$(document).on("click", ".show_notification", function(){
+  $("#staff_id").val($(this).data("id"));
+  $("#name_span").text($(this).data("name"));
+  $("#message_not").val("");
+  $("#notify_result").html("");
+  $("#send_btn").prop("disabled", false).html('<i class="fas fa-paper-plane mr-1"></i>Send');
+});
+
+// Send notification
+$("#send_btn").click(function(){
+  var id      = $("#staff_id").val();
+  var message = $("#message_not").val().trim();
+
+  if(!message){ alert("Please enter a message."); return; }
+
+  $(this).prop("disabled", true).html('<i class="fas fa-spinner fa-spin mr-1"></i>Sending...');
+
+  $.ajax({
+    url: "{% url 'send_staff_notification' %}",
+    type: "POST",
+    headers: {'X-CSRFToken': csrftoken},
+    data: { id: id, message: message },
+  })
+  .done(function(response){
+    if(response == "True"){
+      $("#notify_result").html('<div class="alert alert-success"><i class="fas fa-check-circle mr-1"></i>Notification sent successfully!</div>');
+      $("#message_not").val("");
+    } else {
+      $("#notify_result").html('<div class="alert alert-danger"><i class="fas fa-exclamation-circle mr-1"></i>Failed to send. Please try again.</div>');
+    }
+    $("#send_btn").prop("disabled", false).html('<i class="fas fa-paper-plane mr-1"></i>Send');
+  })
+  .fail(function(){
+    $("#notify_result").html('<div class="alert alert-danger">Server error. Please try again.</div>');
+    $("#send_btn").prop("disabled", false).html('<i class="fas fa-paper-plane mr-1"></i>Send');
+  });
+});
+</script>
+{% endblock custom_js %}

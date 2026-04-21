@@ -1,0 +1,101 @@
+{% extends 'student_template/base_template.html' %}
+{% block page_title %}Send Feedback to Staff{% endblock page_title %}
+{% block main_content %}
+<section class="content">
+  <div class="container-fluid">
+    <div class="row">
+
+      <!-- SEND FEEDBACK FORM -->
+      <div class="col-md-5">
+        <div class="card" style="border-radius:14px;border:none;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+          <div class="card-header" style="background:linear-gradient(135deg,#1565c0,#0d47a1);border-radius:14px 14px 0 0;color:#fff;">
+            <h3 class="card-title mb-0"><i class="fas fa-paper-plane mr-2"></i>Send Feedback to Staff</h3>
+          </div>
+          <div class="card-body">
+            <form action="{% url 'student_send_staff_feedback_save' %}" method="post">
+              {% csrf_token %}
+
+              <div class="form-group">
+                <label><i class="fas fa-chalkboard-teacher mr-1"></i>Select Staff</label>
+                <select name="staff_id" class="form-control" required>
+                  <option value="">-- Select Staff Member --</option>
+                  {% for staff in staffs %}
+                  <option value="{{ staff.id }}">
+                    {% if staff.admin.first_name %}{{ staff.admin.first_name }} {{ staff.admin.last_name }}{% else %}{{ staff.admin.username }}{% endif %}
+                    ({{ staff.admin.email }})
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label><i class="fas fa-comment mr-1"></i>Your Feedback</label>
+                <textarea class="form-control" rows="5" name="feedback_msg"
+                  placeholder="Write your feedback for the staff member..."></textarea>
+              </div>
+
+              {% if messages %}
+                {% for message in messages %}
+                  {% if message.tags == 'error' %}
+                    <div class="alert alert-danger"><i class="fas fa-exclamation-circle mr-1"></i>{{ message }}</div>
+                  {% elif message.tags == 'success' %}
+                    <div class="alert alert-success"><i class="fas fa-check-circle mr-1"></i>{{ message }}</div>
+                  {% endif %}
+                {% endfor %}
+              {% endif %}
+
+              <button type="submit" class="btn btn-primary btn-block">
+                <i class="fas fa-paper-plane mr-1"></i>Send Feedback
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- SENT FEEDBACK HISTORY -->
+      <div class="col-md-7">
+        <div class="card" style="border-radius:14px;border:none;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+          <div class="card-header" style="background:linear-gradient(135deg,#2e7d32,#1b5e20);border-radius:14px 14px 0 0;color:#fff;">
+            <h3 class="card-title mb-0">
+              <i class="fas fa-history mr-2"></i>Sent Feedback History
+              <span class="badge badge-light ml-2">{{ sent_feedbacks|length }}</span>
+            </h3>
+          </div>
+          <div class="card-body p-3">
+            {% if sent_feedbacks %}
+              {% for fb in sent_feedbacks %}
+              <div style="background:#f8f9fa;border-radius:10px;padding:14px;margin-bottom:12px;border-left:4px solid #1565c0;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                  <span style="font-weight:600;font-size:0.83rem;color:#1a1a2e;">
+                    <i class="fas fa-chalkboard-teacher mr-1" style="color:#1565c0;"></i>
+                    To: {% if fb.staff_id.admin.first_name %}{{ fb.staff_id.admin.first_name }} {{ fb.staff_id.admin.last_name }}{% else %}{{ fb.staff_id.admin.username }}{% endif %}
+                  </span>
+                  <small style="color:#78909c;font-size:0.75rem;">{{ fb.created_at|date:"d M Y, h:i A" }}</small>
+                </div>
+                <p style="margin:0 0 8px;font-size:0.85rem;color:#37474f;">{{ fb.feedback }}</p>
+                {% if fb.feedback_reply %}
+                <div style="background:#e3f2fd;border-radius:8px;padding:8px 12px;margin-top:6px;">
+                  <small style="color:#1565c0;font-weight:600;"><i class="fas fa-reply mr-1"></i>Staff Reply:</small>
+                  <p style="margin:4px 0 0;font-size:0.85rem;color:#0d47a1;">{{ fb.feedback_reply }}</p>
+                </div>
+                {% else %}
+                <span style="background:#fff3e0;color:#e65100;font-size:0.72rem;padding:3px 8px;border-radius:6px;font-weight:600;">
+                  <i class="fas fa-clock mr-1"></i>Awaiting Reply
+                </span>
+                {% endif %}
+              </div>
+              {% endfor %}
+            {% else %}
+              <div style="text-align:center;padding:40px 20px;">
+                <i class="fas fa-comments" style="font-size:2.5rem;color:#cfd8dc;"></i>
+                <p style="color:#90a4ae;margin-top:12px;font-size:0.88rem;">No feedback sent to staff yet.</p>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock main_content %}

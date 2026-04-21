@@ -1,0 +1,91 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Canvas Drawing App</title>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: Arial;
+        }
+
+        #toolbar {
+            background: #333;
+            padding: 10px;
+            color: white;
+        }
+
+        button {
+            margin-right: 10px;
+            padding: 5px 10px;
+        }
+
+        canvas {
+            border: 1px solid #ccc;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="toolbar">
+    <button onclick="setTool('pencil')">Pencil</button>
+    <button onclick="setTool('eraser')">Eraser</button>
+    <button onclick="clearCanvas()">Clear</button>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight - 50;
+
+let drawing = false;
+let tool = "pencil";
+
+function setTool(t){
+    tool = t;
+}
+
+canvas.addEventListener("mousedown", () => {
+    drawing = true;
+});
+
+canvas.addEventListener("mouseup", () => {
+    drawing = false;
+    ctx.beginPath();
+});
+
+canvas.addEventListener("mousemove", draw);
+
+function draw(e){
+    if(!drawing) return;
+
+    if(tool === "eraser"){
+        ctx.strokeStyle = "white";
+        ctx.lineWidth = 20;
+    } else {
+        ctx.strokeStyle = "black";
+        ctx.lineWidth = 2;
+    }
+
+    ctx.lineCap = "round";
+
+    ctx.lineTo(e.clientX, e.clientY);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(e.clientX, e.clientY);
+}
+
+function clearCanvas(){
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+</script>
+
+</body>
+</html>

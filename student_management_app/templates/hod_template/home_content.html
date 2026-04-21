@@ -1,0 +1,241 @@
+{% extends 'hod_template/base_template.html' %}
+{% block page_title %}<i class="fas fa-tachometer-alt mr-2" style="color:#1565c0;"></i>Dashboard{% endblock %}
+
+{% block custom_css %}
+<style>
+.stat-card {
+  border-radius: 14px !important;
+  border: none !important;
+  overflow: hidden;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.10) !important;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+.stat-card:hover { transform: translateY(-5px); box-shadow: 0 12px 32px rgba(0,0,0,0.16) !important; }
+.stat-card .card-body { padding: 22px 24px; }
+.stat-icon {
+  width: 56px; height: 56px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; color: #fff;
+}
+.stat-value { font-size: 2rem; font-weight: 700; color: #1a1a2e; line-height: 1; }
+.stat-label { font-size: 0.8rem; color: #78909c; font-weight: 500; margin-top: 4px; }
+.stat-footer {
+  padding: 10px 24px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #fff;
+  text-decoration: none;
+  display: block;
+  transition: opacity 0.2s;
+}
+.stat-footer:hover { opacity: 0.85; color: #fff; text-decoration: none; }
+.chart-card { border-radius: 14px !important; border: none !important; box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important; }
+.chart-card .card-header { border-radius: 14px 14px 0 0 !important; padding: 14px 20px; font-weight: 600; font-size: 0.9rem; }
+</style>
+{% endblock %}
+
+{% block main_content %}
+<section class="content">
+  <div class="container-fluid">
+
+    <!-- STAT CARDS -->
+    <div class="row mb-4">
+
+      <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card stat-card">
+          <div class="card-body d-flex align-items-center justify-content-between">
+            <div>
+              <div class="stat-value">{{ student_count }}</div>
+              <div class="stat-label">Total Students</div>
+            </div>
+            <div class="stat-icon" style="background:linear-gradient(135deg,#0288d1,#01579b);">
+              <i class="fas fa-user-graduate"></i>
+            </div>
+          </div>
+          <a href="{% url 'manage_student' %}" class="stat-footer" style="background:linear-gradient(135deg,#0288d1,#01579b);">
+            <i class="fas fa-arrow-right mr-1"></i> View Students
+          </a>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card stat-card">
+          <div class="card-body d-flex align-items-center justify-content-between">
+            <div>
+              <div class="stat-value">{{ staff_count }}</div>
+              <div class="stat-label">Total Staff</div>
+            </div>
+            <div class="stat-icon" style="background:linear-gradient(135deg,#388e3c,#1b5e20);">
+              <i class="fas fa-chalkboard-teacher"></i>
+            </div>
+          </div>
+          <a href="{% url 'manage_staff' %}" class="stat-footer" style="background:linear-gradient(135deg,#388e3c,#1b5e20);">
+            <i class="fas fa-arrow-right mr-1"></i> View Staff
+          </a>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card stat-card">
+          <div class="card-body d-flex align-items-center justify-content-between">
+            <div>
+              <div class="stat-value">{{ course_count }}</div>
+              <div class="stat-label">Total Courses</div>
+            </div>
+            <div class="stat-icon" style="background:linear-gradient(135deg,#f57f17,#e65100);">
+              <i class="fas fa-book-open"></i>
+            </div>
+          </div>
+          <a href="{% url 'manage_course' %}" class="stat-footer" style="background:linear-gradient(135deg,#f57f17,#e65100);">
+            <i class="fas fa-arrow-right mr-1"></i> View Courses
+          </a>
+        </div>
+      </div>
+
+      <div class="col-xl-3 col-md-6 mb-3">
+        <div class="card stat-card">
+          <div class="card-body d-flex align-items-center justify-content-between">
+            <div>
+              <div class="stat-value">{{ subject_count }}</div>
+              <div class="stat-label">Total Subjects</div>
+            </div>
+            <div class="stat-icon" style="background:linear-gradient(135deg,#c62828,#b71c1c);">
+              <i class="fas fa-list-alt"></i>
+            </div>
+          </div>
+          <a href="{% url 'manage_subject' %}" class="stat-footer" style="background:linear-gradient(135deg,#c62828,#b71c1c);">
+            <i class="fas fa-arrow-right mr-1"></i> View Subjects
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CHARTS ROW 1 -->
+    <div class="row mb-4">
+      <div class="col-lg-6 mb-3">
+        <div class="card chart-card">
+          <div class="card-header" style="background:linear-gradient(135deg,#c62828,#b71c1c);color:#fff;">
+            <i class="fas fa-chart-pie mr-2"></i>Students vs Staff
+          </div>
+          <div class="card-body"><canvas id="pieChart" style="height:250px;"></canvas></div>
+        </div>
+      </div>
+      <div class="col-lg-6 mb-3">
+        <div class="card chart-card">
+          <div class="card-header" style="background:linear-gradient(135deg,#2e7d32,#1b5e20);color:#fff;">
+            <i class="fas fa-chart-donut mr-2"></i>Subjects per Course
+          </div>
+          <div class="card-body"><canvas id="donutChart" style="height:250px;"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW 2 -->
+    <div class="row mb-4">
+      <div class="col-lg-6 mb-3">
+        <div class="card chart-card">
+          <div class="card-header" style="background:linear-gradient(135deg,#00838f,#006064);color:#fff;">
+            <i class="fas fa-chart-pie mr-2"></i>Students per Course
+          </div>
+          <div class="card-body"><canvas id="pieChart3" style="height:250px;"></canvas></div>
+        </div>
+      </div>
+      <div class="col-lg-6 mb-3">
+        <div class="card chart-card">
+          <div class="card-header" style="background:linear-gradient(135deg,#f57f17,#e65100);color:#fff;">
+            <i class="fas fa-chart-pie mr-2"></i>Students per Subject
+          </div>
+          <div class="card-body"><canvas id="pieChart4" style="height:250px;"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHARTS ROW 3 -->
+    <div class="row mb-4">
+      <div class="col-lg-12 mb-3">
+        <div class="card chart-card">
+          <div class="card-header" style="background:linear-gradient(135deg,#1565c0,#0d47a1);color:#fff;">
+            <i class="fas fa-chart-bar mr-2"></i>Staff — Attendance vs Leaves
+          </div>
+          <div class="card-body"><canvas id="barChart1" style="height:260px;"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row mb-4">
+      <div class="col-lg-12 mb-3">
+        <div class="card chart-card">
+          <div class="card-header" style="background:linear-gradient(135deg,#6a1b9a,#4a148c);color:#fff;">
+            <i class="fas fa-chart-bar mr-2"></i>Student — Attendance vs Leaves
+          </div>
+          <div class="card-body"><canvas id="barChart2" style="height:260px;"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock main_content %}
+
+{% block custom_js %}
+<script>
+$(document).ready(function(){
+  var colors = ['#1565c0','#2e7d32','#f57f17','#c62828','#00838f','#6a1b9a','#0288d1','#e65100'];
+
+  // Pie: Students vs Staff
+  new Chart($('#pieChart')[0].getContext('2d'), {
+    type:'pie',
+    data:{ labels:['Students','Staff'], datasets:[{ data:[{{ student_count }},{{ staff_count }}], backgroundColor:['#1565c0','#2e7d32'] }] },
+    options:{ maintainAspectRatio:false, responsive:true }
+  });
+
+  // Donut: Subjects per Course
+  new Chart($('#donutChart')[0].getContext('2d'), {
+    type:'doughnut',
+    data:{ labels:{{ course_name_list|safe }}, datasets:[{ data:{{ subject_count_list }}, backgroundColor:colors }] },
+    options:{ maintainAspectRatio:false, responsive:true }
+  });
+
+  // Pie: Students per Course
+  new Chart($('#pieChart3')[0].getContext('2d'), {
+    type:'pie',
+    data:{ labels:{{ course_name_list|safe }}, datasets:[{ data:{{ student_count_list_in_course }}, backgroundColor:colors }] },
+    options:{ maintainAspectRatio:false, responsive:true }
+  });
+
+  // Pie: Students per Subject
+  new Chart($('#pieChart4')[0].getContext('2d'), {
+    type:'pie',
+    data:{ labels:{{ subject_list|safe }}, datasets:[{ data:{{ student_count_list_in_subject }}, backgroundColor:colors }] },
+    options:{ maintainAspectRatio:false, responsive:true }
+  });
+
+  // Bar: Staff Attendance vs Leaves
+  new Chart($('#barChart1')[0].getContext('2d'), {
+    type:'bar',
+    data:{
+      labels:{{ staff_name_list|safe }},
+      datasets:[
+        { label:'Attendance', data:{{ attendance_present_list_staff }}, backgroundColor:'rgba(21,101,192,0.8)' },
+        { label:'Leaves',     data:{{ attendance_absent_list_staff }},  backgroundColor:'rgba(198,40,40,0.8)' }
+      ]
+    },
+    options:{ maintainAspectRatio:false, responsive:true }
+  });
+
+  // Bar: Student Attendance vs Leaves
+  new Chart($('#barChart2')[0].getContext('2d'), {
+    type:'bar',
+    data:{
+      labels:{{ student_name_list|safe }},
+      datasets:[
+        { label:'Attendance', data:{{ attendance_present_list_student }}, backgroundColor:'rgba(46,125,50,0.8)' },
+        { label:'Leaves',     data:{{ attendance_absent_list_student }},  backgroundColor:'rgba(106,27,154,0.8)' }
+      ]
+    },
+    options:{ maintainAspectRatio:false, responsive:true }
+  });
+});
+</script>
+{% endblock custom_js %}

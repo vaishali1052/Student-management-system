@@ -1,0 +1,197 @@
+{% extends 'hod_template/base_template.html' %}
+{% block page_title %}<i class="fas fa-business-time mr-2" style="color:#1565c0;"></i>Staff Leave{% endblock %}
+{% block main_content %}
+<section class="content">
+  <div class="container-fluid">
+
+    <!-- SUMMARY CARDS -->
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card" style="border-radius:12px;border:none;box-shadow:0 4px 15px rgba(0,0,0,0.08);overflow:hidden;">
+          <div class="card-body d-flex align-items-center justify-content-between" style="padding:18px 20px;">
+            <div>
+              <div style="font-size:1.8rem;font-weight:700;color:#1a1a2e;">{{ leaves|length }}</div>
+              <div style="font-size:0.78rem;color:#78909c;font-weight:500;">Total Requests</div>
+            </div>
+            <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#1565c0,#0d47a1);display:flex;align-items:center;justify-content:center;">
+              <i class="fas fa-list" style="color:#fff;font-size:1.1rem;"></i>
+            </div>
+          </div>
+          <div style="height:4px;background:linear-gradient(135deg,#1565c0,#0d47a1);"></div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card" style="border-radius:12px;border:none;box-shadow:0 4px 15px rgba(0,0,0,0.08);overflow:hidden;">
+          <div class="card-body d-flex align-items-center justify-content-between" style="padding:18px 20px;">
+            <div>
+              <div style="font-size:1.8rem;font-weight:700;color:#1a1a2e;">{{ pending }}</div>
+              <div style="font-size:0.78rem;color:#78909c;font-weight:500;">Pending</div>
+            </div>
+            <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#f57f17,#e65100);display:flex;align-items:center;justify-content:center;">
+              <i class="fas fa-clock" style="color:#fff;font-size:1.1rem;"></i>
+            </div>
+          </div>
+          <div style="height:4px;background:linear-gradient(135deg,#f57f17,#e65100);"></div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card" style="border-radius:12px;border:none;box-shadow:0 4px 15px rgba(0,0,0,0.08);overflow:hidden;">
+          <div class="card-body d-flex align-items-center justify-content-between" style="padding:18px 20px;">
+            <div>
+              <div style="font-size:1.8rem;font-weight:700;color:#1a1a2e;">{{ approved }}</div>
+              <div style="font-size:0.78rem;color:#78909c;font-weight:500;">Approved / On Leave</div>
+            </div>
+            <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#2e7d32,#1b5e20);display:flex;align-items:center;justify-content:center;">
+              <i class="fas fa-check-circle" style="color:#fff;font-size:1.1rem;"></i>
+            </div>
+          </div>
+          <div style="height:4px;background:linear-gradient(135deg,#2e7d32,#1b5e20);"></div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card" style="border-radius:12px;border:none;box-shadow:0 4px 15px rgba(0,0,0,0.08);overflow:hidden;">
+          <div class="card-body d-flex align-items-center justify-content-between" style="padding:18px 20px;">
+            <div>
+              <div style="font-size:1.8rem;font-weight:700;color:#1a1a2e;">{{ rejected }}</div>
+              <div style="font-size:0.78rem;color:#78909c;font-weight:500;">Rejected</div>
+            </div>
+            <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#c62828,#b71c1c);display:flex;align-items:center;justify-content:center;">
+              <i class="fas fa-times-circle" style="color:#fff;font-size:1.1rem;"></i>
+            </div>
+          </div>
+          <div style="height:4px;background:linear-gradient(135deg,#c62828,#b71c1c);"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CURRENTLY ON LEAVE -->
+    {% if on_leave %}
+    <div class="row mb-4">
+      <div class="col-12">
+        <div class="card" style="border-radius:14px;border:none;box-shadow:0 4px 15px rgba(0,0,0,0.08);">
+          <div class="card-header" style="background:linear-gradient(135deg,#2e7d32,#1b5e20);border-radius:14px 14px 0 0;color:#fff;padding:14px 20px;">
+            <h5 class="mb-0"><i class="fas fa-user-check mr-2"></i>Staff Currently On Leave <span class="badge badge-light ml-1">{{ approved }}</span></h5>
+          </div>
+          <div class="card-body" style="padding:16px;">
+            <div class="row">
+              {% for leave in on_leave %}
+              <div class="col-md-3 col-sm-6 mb-3">
+                <div style="background:#f0f4f8;border-radius:10px;padding:14px;border-left:4px solid #2e7d32;display:flex;align-items:center;gap:12px;">
+                  <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#2e7d32,#1b5e20);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i class="fas fa-chalkboard-teacher" style="color:#fff;font-size:0.85rem;"></i>
+                  </div>
+                  <div>
+                    <div style="font-weight:600;font-size:0.83rem;color:#1a1a2e;">
+                      {% if leave.staff_id.admin.first_name or leave.staff_id.admin.last_name %}
+                        {{ leave.staff_id.admin.first_name }} {{ leave.staff_id.admin.last_name }}
+                      {% else %}
+                        {{ leave.staff_id.admin.username }}
+                      {% endif %}
+                    </div>
+                    <div style="font-size:0.72rem;color:#78909c;">{{ leave.leave_date }}</div>
+                    <span style="background:#e8f5e9;color:#2e7d32;font-size:0.7rem;padding:2px 8px;border-radius:6px;font-weight:600;">{{ leave.leave_type }}</span>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ALL LEAVE REQUESTS TABLE -->
+    <div class="row">
+      <div class="col-12">
+        <div class="card" style="border-radius:14px;border:none;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+          <div class="card-header d-flex justify-content-between align-items-center"
+               style="background:linear-gradient(135deg,#2e7d32,#1b5e20);border-radius:14px 14px 0 0;color:#fff;">
+            <h3 class="card-title mb-0"><i class="fas fa-list mr-2"></i>All Leave Requests</h3>
+            <div class="input-group input-group-sm" style="width:200px;">
+              <input type="text" id="search_input" class="form-control" placeholder="Search...">
+              <div class="input-group-append">
+                <span class="input-group-text" style="background:rgba(255,255,255,0.2);border:none;color:#fff;"><i class="fas fa-search"></i></span>
+              </div>
+            </div>
+          </div>
+          <div class="card-body p-0">
+            {% if leaves %}
+            <div class="table-responsive">
+              <table class="table table-hover mb-0" id="leave_table">
+                <thead>
+                  <tr style="background:#f8f9fa;">
+                    <th>#</th><th>Staff</th><th>Leave Type</th><th>Leave Date</th>
+                    <th>Reason</th><th>Applied On</th><th>Status</th><th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for leave in leaves %}
+                <tr>
+                  <td><span class="badge badge-secondary">{{ leave.id }}</span></td>
+                  <td>
+                    <div style="display:flex;align-items:center;gap:8px;">
+                      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#2e7d32,#1b5e20);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <i class="fas fa-chalkboard-teacher" style="color:#fff;font-size:0.75rem;"></i>
+                      </div>
+                      <div>
+                        <div style="font-weight:600;font-size:0.83rem;">
+                          {% if leave.staff_id.admin.first_name or leave.staff_id.admin.last_name %}
+                            {{ leave.staff_id.admin.first_name }} {{ leave.staff_id.admin.last_name }}
+                          {% else %}
+                            {{ leave.staff_id.admin.username }}
+                          {% endif %}
+                        </div>
+                        <small style="color:#78909c;font-size:0.73rem;">{{ leave.staff_id.admin.email }}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td><span style="background:#e8f5e9;color:#2e7d32;font-size:0.75rem;padding:3px 10px;border-radius:8px;font-weight:600;">{{ leave.leave_type }}</span></td>
+                  <td style="font-size:0.85rem;font-weight:500;">{{ leave.leave_date }}</td>
+                  <td style="font-size:0.83rem;max-width:180px;">{{ leave.leave_message }}</td>
+                  <td><small style="color:#78909c;font-size:0.78rem;">{{ leave.created_at|date:"d M Y" }}</small></td>
+                  <td>
+                    {% if leave.leave_status == 0 %}
+                      <span style="background:#fff3e0;color:#e65100;font-size:0.75rem;padding:4px 10px;border-radius:8px;font-weight:600;"><i class="fas fa-clock mr-1"></i>Pending</span>
+                    {% elif leave.leave_status == 1 %}
+                      <span style="background:#e8f5e9;color:#2e7d32;font-size:0.75rem;padding:4px 10px;border-radius:8px;font-weight:600;"><i class="fas fa-check-circle mr-1"></i>Approved</span>
+                    {% else %}
+                      <span style="background:#ffebee;color:#c62828;font-size:0.75rem;padding:4px 10px;border-radius:8px;font-weight:600;"><i class="fas fa-times-circle mr-1"></i>Rejected</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if leave.leave_status == 0 %}
+                      <a href="{% url 'staff_approve_leave' leave_id=leave.id %}" class="btn btn-success btn-sm"><i class="fas fa-check mr-1"></i>Approve</a>
+                      <a href="{% url 'staff_disapprove_leave' leave_id=leave.id %}" class="btn btn-danger btn-sm"><i class="fas fa-times mr-1"></i>Reject</a>
+                    {% else %}
+                      <span style="color:#90a4ae;font-size:0.8rem;">Done</span>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <div style="text-align:center;padding:60px 20px;">
+              <i class="fas fa-calendar-times" style="font-size:3rem;color:#cfd8dc;"></i>
+              <h5 style="color:#90a4ae;margin-top:16px;">No Leave Requests</h5>
+              <p style="color:#b0bec5;font-size:0.85rem;">No staff has applied for leave yet.</p>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+{% endblock main_content %}
+{% block custom_js %}
+<script>
+$("#search_input").on("keyup", function(){
+    var val = $(this).val().toLowerCase();
+    $("#leave_table tbody tr").filter(function(){ $(this).toggle($(this).text().toLowerCase().includes(val)); });
+});
+</script>
+{% endblock custom_js %}

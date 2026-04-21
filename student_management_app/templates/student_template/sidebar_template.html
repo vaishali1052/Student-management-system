@@ -1,0 +1,61 @@
+{% load static %}
+<aside class="main-sidebar elevation-4">
+  <a href="{% url 'student_home' %}" class="brand-link">
+    <i class="fas fa-user-graduate ml-2 mr-2" style="color:#4fc3f7;font-size:1.4rem;"></i>
+    <span class="brand-text">Student Panel</span>
+  </a>
+  <div class="sidebar">
+    <div class="user-panel mt-3 pb-3 mb-3 d-flex align-items-center">
+      <div class="image">
+        <div style="width:35px;height:35px;border-radius:50%;background:linear-gradient(135deg,#4fc3f7,#1565c0);display:flex;align-items:center;justify-content:center;">
+          <i class="fas fa-user-graduate" style="color:#fff;font-size:0.9rem;"></i>
+        </div>
+      </div>
+      <div class="info ml-2">
+        <a href="{% url 'student_profile' %}" class="d-block" style="color:#b0bec5;font-size:0.82rem;font-weight:500;">
+          {{ user.username }}
+        </a>
+        <small style="color:#4fc3f7;font-size:0.72rem;">Student</small>
+      </div>
+    </div>
+    <nav class="mt-1">
+      <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+
+        {% url 'student_home' as student_home %}
+        <li class="nav-item">
+          <a href="{{ student_home }}" class="nav-link {% if request.path == student_home %}active{% endif %}">
+            <i class="nav-icon fas fa-tachometer-alt"></i><p>Dashboard</p>
+          </a>
+        </li>
+
+        <li class="nav-header" style="color:#546e7a;font-size:0.7rem;letter-spacing:1px;padding:10px 14px 4px;">ATTENDANCE</li>
+
+        {% url 'student_view_attendance' as student_view_attendance %}
+        <li class="nav-item">
+          <a href="{{ student_view_attendance }}" class="nav-link {% if request.path == student_view_attendance %}active{% endif %}">
+            <i class="nav-icon fas fa-clipboard-check"></i><p>View Attendance</p>
+          </a>
+        </li>
+
+        <li class="nav-header" style="color:#546e7a;font-size:0.7rem;letter-spacing:1px;padding:10px 14px 4px;">LEAVE</li>
+
+        {% url 'student_apply_leave' as student_apply_leave %}
+        <li class="nav-item">
+          <a href="{{ student_apply_leave }}" class="nav-link {% if request.path == student_apply_leave %}active{% endif %}">
+            <i class="nav-icon fas fa-calendar-plus"></i><p>Apply for Leave</p>
+          </a>
+        </li>
+
+        <li class="nav-header" style="color:#546e7a;font-size:0.7rem;letter-spacing:1px;padding:10px 14px 4px;">OTHER</li>
+
+        {% url 'student_all_notification' as student_all_notification %}
+        <li class="nav-item">
+          <a href="{{ student_all_notification }}" class="nav-link {% if request.path == student_all_notification %}active{% endif %}">
+            <i class="nav-icon fas fa-bell"></i><p>Notifications</p>
+          </a>
+        </li>
+
+      </ul>
+    </nav>
+  </div>
+</aside>
