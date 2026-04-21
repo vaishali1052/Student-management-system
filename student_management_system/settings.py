@@ -118,3 +118,13 @@ CAPTCHA_SECRET = "test"
 
 # 🆕 Default auto field
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+ALLOWED_HOSTS = ["*"]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://web-production-5da76.up.railway.app",
+    "https://web-production-7e5b.up.railway.app",
+]
+
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
